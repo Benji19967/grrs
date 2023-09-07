@@ -8,12 +8,17 @@ struct Cli {
     /// The pattern to look for
     pattern: String,
     /// The path to the file to read
-    path: std::path::PathBuf,
+    // path: std::path::PathBuf,
+    path: String,
 }
 
-fn main() {
+use anyhow::{Context, Result};
+
+fn main() -> Result<()> {
     let args = Cli::parse();
-    let content = std::fs::read_to_string(&args.path).expect("could not read file");
+    let path = &args.path;
+    let content = std::fs::read_to_string(path)
+        .with_context(|| format!("could not read file `{}`", path))?;
 
     for line in content.lines() {
         if line.contains(&args.pattern) {
@@ -21,4 +26,5 @@ fn main() {
         }
     }
 
+    Ok(())
 }
